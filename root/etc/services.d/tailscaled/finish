@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+tailscaled --cleanup

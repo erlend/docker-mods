@@ -1,0 +1,32 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+test -S /var/run/tailscale/tailscaled.sock || exit 1
+
+# Login if needed
+tailscale status &>/dev/null || tailscale up --authkey="$TS_AUTHKEY"
+
+# Configure funnel
+case "$TS_SERVE_FUNNEL" in
+  on | off)
+    tailscale serve funnel "$TS_SERVE_FUNNEL"
+    ;;
+  "")
+    # Do nothing when TS_SERVE_FUNNEL is blank
+    ;;
+  *),
+    tailscale serve funnel on
+    ;;
+esac
+
+if [ -n "$TS_SERVE_PROXY_PORT" ]; then
+  set -- / proxy "$TS_SERVE_PROXY_PORT"
+elif [ -n "$TS_SERVE_TCP_PORT" ]; then
+  set -- tcp "$TS_SERVE_TCP_PORT"
+elif [ -n "$TS_SERVE_CUSTOM" ]; then
+  set -- "$TS_SERVE_CUSTOM"
+else
+  exit 1
+fi
+
+exec tailscale serve $@

@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+# Do not try to restart service if all required environment variables are blank
+# TS_SERVE_PROXY_PORT, TS_SERVE_TCP_PORT or TS_SERVE_CUSTOM
+test -n "$TS_SERVE_PROXY_PORT$TS_SERVE_TCP_PORT$TS_SERVE_CUSTOM" || exit 125

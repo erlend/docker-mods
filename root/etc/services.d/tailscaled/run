@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+tailscaled --cleanup
+
+state=${TS_STATE_FILE:-/config/tailscale/tailscale.state}
+
+exec tailscaled --state=$state --tun=userspace-networking
