@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+# Do not try to restart service if REDIRECT_HTTPS is blank
+test -n "$REDIRECT_HTTPS" || exit 125

@@ -1,0 +1,39 @@
+#!/usr/bin/with-contenv bash
+# vi: ft=bash
+
+# This is a simple web server that redirects all requests to HTTPS. It is
+# inefficient but adds less than 1KB to the image and hopefully covers the
+# needs of most users.
+
+# Only start service if REDIRECT_TO_HTTPS is set
+test -n "$REDIRECT_TO_HTTPS" || exit 125
+
+PORT="${REDIRECT_TO_HTTPS_FROM_PORT:-80}"
+FIFO="/var/cache/redirect-https/response"
+
+trap "rm -f $FIFO; exit" SIGINT
+rm -f $FIFO
+mkfifo $FIFO
+
+function redirect_https() {
+  while read line
+  do
+    test -n "$path" || path=$(echo $line | awk '{ print $2 }')
+
+    host=${line#Host: }
+    test "$host" != "$line" && break
+  done
+
+  location="https://${host%:*}$path"
+  echo -e "HTTP/1.1 301 Moved Permanently\r\nLocation: $location\r\n" > $FIFO
+}
+
+args="-l"
+
+# Extra args for Alpine
+test -x /sbin/apk && args="$args -p"
+
+echo "Listening on port $PORT..."
+while true
+do cat $FIFO | nc $args $PORT | redirect_https
+done
