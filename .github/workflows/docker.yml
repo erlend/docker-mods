@@ -6,7 +6,7 @@ on:
 
 jobs:
   docker-bake:
-    if: github.ref_name != "main"
+    if: github.ref_name != 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
